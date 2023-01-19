@@ -30,4 +30,22 @@ router.post('/', async (req, res) => {
     }
 })
 
+router.delete('/:id', async (req,res) => {
+    const { id } = req.params
+
+    try {
+        const transaction = Transaction.findById(id)
+        if(!transaction){
+            throw new Error('No transaction was found')
+        }
+        const removed = await transaction.remove()
+        if(!removed) {
+            throw new Error('There was a problem deleting the tranaction')
+        }
+        res.status(200).json({id})
+    } catch (error) {
+        res.status(404).json({message: error.message})
+    }
+})
+
 module.exports = router
