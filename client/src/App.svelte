@@ -1,30 +1,43 @@
 <script>
-	export let name;
+	import axios from "axios";
+	import { onMount } from "svelte";
+	
+	let input = 0;
+	let typeOfTransaction = "+";
+	let transactions = [];
+
+	onMount(async () => {
+    const { data } = await axios.get("http://localhost:3000/api/transactions");
+    transactions = data;
+  });
+
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
-
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  .app {
+    margin: 40px auto;
+    max-width: 500px;
+  }
 </style>
+
+<div class="app container">
+	<div class="field has-addons">
+	  <p class="control">
+		<span class="select">
+		  <select bind:value={typeOfTransaction}>
+			<option value="+">+</option>
+			<option value="-">-</option>
+		  </select>
+		</span>
+	  </p>
+	  <p class="control is-expanded">
+		<input class="input" type="number" bind:value={input} placeholder="Amount of money" />
+	  </p>
+	  <p class="control">
+		<button class="button">Save</button>
+	  </p>
+	</div>
+	<p>{input}</p>
+	<p>{typeOfTransaction}</p>
+	<p>{JSON.stringify(transactions)}</p>
+</div>
