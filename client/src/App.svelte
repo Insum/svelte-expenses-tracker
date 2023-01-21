@@ -11,6 +11,23 @@
     transactions = data;
   });
 
+  async function addTransaction() {
+    const transaction = {
+      date: new Date().getTime(),
+      value: typeOfTransaction === "+" ? input : input * -1
+    };
+    const response = await axios.post("http://localhost:3000/api/transactions", transaction);
+    transactions = [response.data, ...transactions];
+    input = 0;
+  }
+
+  async function removeTransaction(id) {
+    const response = await axios.delete("http://localhost:3000/api/transactions/" + id);
+    if (response.data.id === id) {
+      transactions = transactions.filter(t => t._id !== id);
+    }
+  }
+
 </script>
 
 <style>
@@ -34,10 +51,14 @@
 		<input class="input" type="number" bind:value={input} placeholder="Amount of money" />
 	  </p>
 	  <p class="control">
-		<button class="button">Save</button>
+		<button class="button" on:click={addTransaction}>Save</button>
 	  </p>
 	</div>
-	<p>{input}</p>
-	<p>{typeOfTransaction}</p>
-	<p>{JSON.stringify(transactions)}</p>
+	<hr>
+	{#each transactions as transaction}
+		<div class="notification {transaction.value > 0 ? 'is-success' : 'is-danger'}">
+			{transaction.value}
+			<button class="delete" on:click={() => removeTransaction(transaction._id)}></button>
+		</div>
+	{/each}
 </div>
