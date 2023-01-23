@@ -6,6 +6,11 @@
 	let typeOfTransaction = "+";
 	let transactions = [];
 
+	$: disabled = !input;
+	$: balance = transactions.reduce((acc, t) => acc + t.value, 0);
+	$: income = transactions.filter(t => t.value > 0).reduce((acc, t) => acc + t.value, 0);
+	$: expenses = transactions.filter(t => t.value < 0).reduce((acc, t) => acc + t.value, 0);
+
 	onMount(async () => {
     const { data } = await axios.get("http://localhost:3000/api/transactions");
     transactions = data;
@@ -51,12 +56,29 @@
 		<input class="input" type="number" bind:value={input} placeholder="Amount of money" />
 	  </p>
 	  <p class="control">
-		<button class="button" on:click={addTransaction}>Save</button>
+		<button class="button" on:click={addTransaction} {disabled}>Save</button>
 	  </p>
 	</div>
+	<div class="notification is-info is-light has-text-centered">
+		Balance: <strong>{balance}</strong>
+	</div>
+
+	<div class="columns">
+		<div class="column">
+			<div class="notification is-success is-light has-text-centered">
+				Income: <strong>{income}</strong>
+			</div>
+		</div>
+		<div class="column">
+			<div class="notification is-danger is-light has-text-centered">
+				Expenses: <strong>{expenses}</strong>
+			</div>
+		</div>
+	</div>
+
 	<hr>
 	{#each transactions as transaction}
-		<div class="notification {transaction.value > 0 ? 'is-success' : 'is-danger'}">
+		<div class="notification is-light {transaction.value > 0 ? 'is-success' : 'is-danger'}">
 			{transaction.value}
 			<button class="delete" on:click={() => removeTransaction(transaction._id)}></button>
 		</div>
