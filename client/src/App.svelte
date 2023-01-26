@@ -1,5 +1,7 @@
 <script>
 	import axios from "axios";
+	import Transaction from "./components/Transaction.svelte";
+	import SummaryCard from "./components/SummaryCard.svelte";
 	import { onMount } from "svelte";
 	
 	let input = 0;
@@ -59,28 +61,20 @@
 		<button class="button" on:click={addTransaction} {disabled}>Save</button>
 	  </p>
 	</div>
-	<div class="notification is-info is-light has-text-centered">
-		Balance: <strong>{balance}</strong>
-	</div>
+	
+	<SummaryCard value={balance}></SummaryCard>
 
 	<div class="columns">
 		<div class="column">
-			<div class="notification is-success is-light has-text-centered">
-				Income: <strong>{income}</strong>
-			</div>
+			<SummaryCard value={income} mode={"income"}></SummaryCard>
 		</div>
 		<div class="column">
-			<div class="notification is-danger is-light has-text-centered">
-				Expenses: <strong>{expenses}</strong>
-			</div>
+			<SummaryCard value={expenses} mode={"expenses"}></SummaryCard>
 		</div>
 	</div>
 
 	<hr>
 	{#each transactions as transaction}
-		<div class="notification is-light {transaction.value > 0 ? 'is-success' : 'is-danger'}">
-			{transaction.value}
-			<button class="delete" on:click={() => removeTransaction(transaction._id)}></button>
-		</div>
+	<Transaction transaction={transaction} removeTransaction={removeTransaction}></Transaction>
 	{/each}
 </div>
