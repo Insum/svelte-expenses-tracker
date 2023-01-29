@@ -2,20 +2,25 @@
 	import axios from "axios";
 	import Transaction from "./components/Transaction.svelte";
 	import SummaryCard from "./components/SummaryCard.svelte";
+	import Progress from "./components/Progress.svelte";
 	import { onMount } from "svelte";
 	
 	let input = 0;
 	let typeOfTransaction = "+";
 	let transactions = [];
+	let loading = false;
 
+	$: sortedTransaction = transactions.sort((a,b) => b.date - a.date);
 	$: disabled = !input;
 	$: balance = transactions.reduce((acc, t) => acc + t.value, 0);
 	$: income = transactions.filter(t => t.value > 0).reduce((acc, t) => acc + t.value, 0);
 	$: expenses = transactions.filter(t => t.value < 0).reduce((acc, t) => acc + t.value, 0);
 
 	onMount(async () => {
+	loading = true;
     const { data } = await axios.get("http://localhost:3000/api/transactions");
     transactions = data;
+	loading = false;
   });
 
   async function addTransaction() {
@@ -61,7 +66,10 @@
 		<button class="button" on:click={addTransaction} {disabled}>Save</button>
 	  </p>
 	</div>
-	
+	{#if loading}
+		<Progress></Progress>
+	{/if}
+	{#if transactions.length > 0}
 	<SummaryCard value={balance}></SummaryCard>
 
 	<div class="columns">
@@ -72,9 +80,11 @@
 			<SummaryCard value={expenses} mode={"expenses"}></SummaryCard>
 		</div>
 	</div>
-
 	<hr>
-	{#each transactions as transaction}
+	{:else}
+	<div class="notification">Add your first transaction</div>
+	{/if}
+	{#each sortedTransaction as transaction}
 	<Transaction transaction={transaction} removeTransaction={removeTransaction}></Transaction>
 	{/each}
 </div>
